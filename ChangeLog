@@ -1,0 +1,49 @@
+12 Jul 2014 Andrei Mikhailov <a.mkhlv@gmail.com>
+  * 1.2.3 released. Fixed bugs. Applied 64-bit patch from Debian.
+
+14 Jan 2010 Andrei Mikhailov <a.mkhlv@gmail.com>
+  * 1.2.2 released. Fixed bugs. Introduced a new command line option --timeout= to set the 
+    dialog window timeout in seconds. Added optional header message, read from file ~/.wmjump/wmjump-message;
+    this is useful e.g. for showing time. 
+
+14 Sep 2010 Andrei Mikhailov <a.mkhlv@gmail.com>
+  * 1.2.1 released. Fixed bugs. Introduced a new command line option --verbose, or -v.
+    Now the program is executed silently, unless if invoked with -v.
+
+06 Oct 2009 Andrei Mikhailov <a.mkhlv@gmail.com>
+  * 1.2 released. Fixed a bug in rich text formatting. Also fixed a bug in
+    the --pipe mode which in some circumstances drove wmjump into an endless
+    loop.
+
+24 Aug 2009 Andrei Mikhailov <a.mkhlv@gmail.com>
+  * 1.1 released. Introduced new command line options --rich (using rich text in
+    the wmjump window), --location (to adjust the location on screen), --easy,
+    --pipe (experimental daemonized mode). See the manual page or the Wiki page 
+    on Google Code for details.
+
+23 Jul 2009 Andrei Mikhailov <a.mkhlv@gmail.com>
+  * 1.0 released. Now pressing the space bar brings up the previous window;
+    this is useful when you have to jump back and force between two windows.
+    Also fixed a bug, now wmjump properly reports its own window class (wmjump).
+
+10 Mar 2009 Andrei Mikhailov <a.mkhlv@gmail.com>
+  * 0.9 released. StumpWM compatibility mode, command line option -g. 
+    New command line options --persist, --reverse. Now the wmjump window is
+    auto-destroyed when the focus is lost, unless if wmjump is started with
+    the command line option --persist. The new option --reverse gives the
+    list of windows in the opposite order.
+
+23 Dec 2008 Andrei Mikhailov <a.mkhlv@gmail.com>
+  * 0.8 released. Introduced the Compiz compatibility mode, command
+    line option --compiz.
+
+26 Nov 2008 Andrei Mikhailov <a.mkhlv@gmail.com>
+  * 0.7 released. The snowflake was introduced to mark the currently 
+    active window. New command line option wmjump -c, or --current,
+    to show windows only on the current desktop.
+
+22 Oct 2008 Andrei Mikhailov <a.mkhlv@gmail.com>
+  * 0.6 released.  The color of the button text is now configurable; 
+    this is important if the user chooses dark background colors. 
+    Cleaned up library dependence. 
+

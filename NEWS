@@ -1,0 +1,37 @@
+v1.2.3: Fixed bugs. Applied 64-bit patch from Debian.
+
+v1.2:   Fixed a bug in rich text formatting. Also fixed a bug in the --pipe
+        mode which in some circumstances drove wmjump into an endless loop.
+
+v1.1:   Introduced new command line options --rich (using rich text in
+        the wmjump window), --location (to adjust the location on screen), --easy,
+        --pipe (experimental daemonized mode). See the manual page or the Wiki page 
+        on Google Code for details.
+
+v1.0:   Now pressing the space bar brings up the previous window;
+        this is useful when you have to jump back and force between two windows.  Also
+        fixed a bug, now wmjump properly reports its own window class (wmjump).
+
+v0.9:   StumpWM compatibility mode, command line option -g. 
+        New command line options --persist, --reverse. Now the wmjump window is
+        auto-destroyed when the focus is lost, unless if wmjump is started with
+        the command line option --persist. The new option --reverse gives the
+        list of windows in the opposite order.
+
+v0.8:   Compiz compatibility mode, command line option --compiz.
+
+v0.7:   The snowflake symbol was introduced to mark the currently active window. 
+        (See the updated screenshot.)
+        The command line option was introduced: wmjump -c, or wmjump --current
+        When called wmjump -c, only the windows from the current desktop
+        are shown. I recommend two separate keyboard shortcuts, for example:
+        <Alt>k for wmjump, and <Alt>j for wmjump -c
+        Then pressing <Alt>k shows all the windows on all desktops, so you can jump 
+        across desktops. On the other hand, pressing <Alt>j shows only the windows 
+        on the current desktop. This may be useful when you have many running
+        applications, organized and grouped by the desktop. 
+
+        Note that there is a new setup option in wmjump-rc: 
+        background_window_currentonly_style
+        This determines the color of the window border when run with the --current
+        option.

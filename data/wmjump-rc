@@ -1,0 +1,181 @@
+include "/usr/share/themes/Industrial/gtk-2.0/gtkrc"
+
+
+# This determines the font:
+
+style "default_wmjump"
+{
+  font_name="DejaVu Sans 10"
+  GtkButton::focus-line-width = 0
+}
+class "GtkWidget" style "default_wmjump"
+
+
+# This determines the default color of the button:
+
+style "other_buttons"
+{
+bg[NORMAL]="#FFD39B"
+bg[PRELIGHT]="#FFD39B"
+}
+class "GtkButton" style "other_buttons" 
+
+# This determines the default color of the message area:
+style "messagearea_style"
+{
+  font_name="DejaVu Sans 14"
+  base[NORMAL]="#F0F8FF"
+}
+class "GtkTextView" style "messagearea_style"
+
+# This determines the background color of the wmjump window:
+
+style "background_window_style"
+{
+  bg[NORMAL] = "#00ccff"
+}
+widget "*main_window" style "background_window_style"
+
+style "background_window_currentonly_style"
+{
+  bg[NORMAL] = "#ccff00"
+}
+widget "*main_window_currentonly" style "background_window_currentonly_style"
+
+# Here we define the color of a button corresponding 
+# to the Tk applications:
+
+style "mytk"
+{
+bg[NORMAL] = "#99ccff"
+bg[PRELIGHT] = "#99ccff"
+}
+widget "*tk" style "mytk"
+widget "*tk #*" style "mytk"
+
+# Here we define the color of a button corresponding 
+# to the applications "gsview" and "acroread":
+
+style "mypink"
+{
+bg[NORMAL] = "#FF9eaa"
+bg[PRELIGHT] = "#FF9eaa"
+}
+widget "*acroread" style "mypink"
+widget "*gsview" style "mypink"
+
+# note that "gsview" was the name of the window class
+# note the asterisk * in "*gsview"; that asterisk is important !
+
+# let us proceed with other application classes;
+# let us define also the color of letters:
+
+style "myyellow"
+{
+bg[NORMAL] = "#fcf670"
+bg[PRELIGHT] = "#fcf670"
+fg[NORMAL] = "#000060"
+fg[PRELIGHT]="#000060"
+}
+widget "*xfce4-terminal" style "myyellow"
+widget "*gnome-terminal" style "myyellow"
+widget "*konsole" style "myyellow"
+widget "*urxvt" style "myyellow"
+widget "*terminator" style "myyellow"
+widget "*xterm" style "myyellow"
+widget "*x-terminal-emulator" style "myyellow"
+
+style "mygreen"
+{
+bg[NORMAL] = "#84EC84"
+bg[PRELIGHT] = "#84EC84"
+}
+widget "*gvim" style "mygreen"
+
+style "myemacs"
+{
+bg[NORMAL] = "#2F4F4F"
+bg[PRELIGHT] = "#2F4F4F"
+fg[NORMAL] = "#FAEBD7"
+fg[PRELIGHT] = "#FAEBD7"
+}
+widget "*emacs" style "myemacs"
+
+style "myblue"
+{
+bg[NORMAL]="#c7c7ff"
+bg[PRELIGHT]="#c7c7ff"
+}
+widget "*opera" style "myblue"
+widget "*chromium-browser" style "myblue"
+widget "*d3lphin" style "myblue"
+widget "*Thunar" style "myblue"
+widget "*evolution" style "myblue"
+widget "*midori" style "myblue"
+
+style "myfern"
+{
+bg[NORMAL]="#71BC78"
+bg[PRELIGHT]="#71BC78"
+}
+widget "*Mail" style "myfern"
+
+style "myorange"
+{
+bg[NORMAL] = "#FFA54F"
+bg[PRELIGHT] = "#FFA54F"
+fg[NORMAL] = "#000060"
+fg[PRELIGHT]="#000060"
+}
+widget "*Navigator" style "myorange"
+widget "*konqueror" style "myorange"
+
+style "skype"
+{
+bg[NORMAL] = "#9dff00"
+bg[PRELIGHT] = "#9dff00"
+fg[NORMAL] = "#000000"
+fg[PRELIGHT]="#000000"
+}
+widget "*skype" style "skype"
+
+style "alert"
+{   
+bg[NORMAL] = "#FF0000"
+bg[PRELIGHT] = "#FF0000"
+fg[NORMAL] = "#FFFFFF"
+fg[PRELIGHT]="#FFFFFF"
+}
+widget "*todo-reminder" style "alert"
+
+style "volume"
+{
+bg[NORMAL] = "#aaddc3"
+bg[PRELIGHT] = "#aaddc3"
+fg[NORMAL] = "#000099"
+fg[PRELIGHT]="#000099"
+}
+widget "*gnome-volume-control" style "volume"
+widget "*pavucontrol" style "volume"
+
+style "rhythmbox"
+{
+bg[NORMAL] = "#aaddc3"
+bg[PRELIGHT] = "#aaddc3"
+fg[NORMAL] = "#990000"
+fg[PRELIGHT]="#990000"
+}
+widget "*rhythmbox" style "rhythmbox"
+widget "*exaile.py"  style "rhythmbox"
+widget "*vlc" style "rhythmbox"
+widget "*smplayer" style "rhythmbox"
+
+
+style "mytkremind"
+{
+bg[NORMAL]="#c7c7ff"
+bg[PRELIGHT]="#c7c7ff"
+}
+widget "*tkremind" style "mytkremind"
+
+# happy wmjumping!
