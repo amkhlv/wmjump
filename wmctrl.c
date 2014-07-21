@@ -55,6 +55,13 @@ Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define p_verbose(...) if (options.verbose) { \
     fprintf(stderr, __VA_ARGS__); \
   }
+unsigned long get_timestamp (Display* disp) {
+    unsigned long * tstump; 
+    if ( (tstump = (unsigned long *)get_property(disp, DefaultRootWindow(disp),
+                                         XA_CARDINAL, "_NET_WM_USER_TIME", NULL)) == NULL)
+    {return 0L ; } else { return * tstump;}
+    g_free(tstump); tstump = NULL ;
+}
 
 void init_charset (void) {/*{{{*/
     const gchar *charset; /* unused */
@@ -81,7 +88,7 @@ void init_charset (void) {/*{{{*/
     p_verbose("envir_utf8: %d\n", envir_utf8);
 }/*}}}*/
 
-static int client_msg(Display *disp, Window win, char *msg, /* {{{ */
+int client_msg(Display *disp, Window win, char *msg, /* {{{ */
         unsigned long data0, unsigned long data1, 
         unsigned long data2, unsigned long data3,
         unsigned long data4) {
@@ -109,7 +116,7 @@ static int client_msg(Display *disp, Window win, char *msg, /* {{{ */
     }
 }/*}}}*/
 
-static gchar *get_output_str (gchar *str, gboolean is_utf8) {/*{{{*/
+gchar *get_output_str (gchar *str, gboolean is_utf8) {/*{{{*/
     gchar *out;
    
     if (str == NULL) {
@@ -142,7 +149,7 @@ static gchar *get_output_str (gchar *str, gboolean is_utf8) {/*{{{*/
     return out;
 }/*}}}*/
 
-static int wm_info (Display *disp) {/*{{{*/
+int wm_info (Display *disp) {/*{{{*/
     Window *sup_window = NULL;
     gchar *wm_name = NULL;
     gchar *wm_class = NULL;
@@ -226,7 +233,7 @@ static int wm_info (Display *disp) {/*{{{*/
     return EXIT_SUCCESS;
 }/*}}}*/
 
-static int showing_desktop (Display *disp) {/*{{{*/
+int showing_desktop (Display *disp) {/*{{{*/
     unsigned long state;
     
     if (strcmp(options.param, "on") == 0) {
@@ -244,7 +251,7 @@ static int showing_desktop (Display *disp) {/*{{{*/
         state, 0, 0, 0, 0);
 }/*}}}*/
 
-static int change_viewport (Display *disp) {/*{{{*/
+int change_viewport (Display *disp) {/*{{{*/
     unsigned long x, y;
     const char *argerr = "The -o option expects two integers separated with a comma.\n";
    
@@ -258,7 +265,7 @@ static int change_viewport (Display *disp) {/*{{{*/
     }
 }/*}}}*/
 
-static int change_geometry (Display *disp) {/*{{{*/
+int change_geometry (Display *disp) {/*{{{*/
     unsigned long x, y;
     const char *argerr = "The -g option expects two integers separated with a comma.\n";
    
@@ -272,7 +279,7 @@ static int change_geometry (Display *disp) {/*{{{*/
     }
 }/*}}}*/
 
-static int change_number_of_desktops (Display *disp) {/*{{{*/
+int change_number_of_desktops (Display *disp) {/*{{{*/
     unsigned long n;
 
     if (sscanf(options.param, "%lu", &n) != 1) {
@@ -284,7 +291,7 @@ static int change_number_of_desktops (Display *disp) {/*{{{*/
         n, 0, 0, 0, 0);
 }/*}}}*/
 
-static int switch_desktop (Display *disp) {/*{{{*/
+int switch_desktop (Display *disp) {/*{{{*/
     int target = -1;
     
     target = atoi(options.param); 
@@ -297,7 +304,7 @@ static int switch_desktop (Display *disp) {/*{{{*/
             (unsigned long)target, 0, 0, 0, 0);
 }/*}}}*/
 
-static void window_set_title (Display *disp, Window win, /* {{{ */
+void window_set_title (Display *disp, Window win, /* {{{ */
         char *title, char mode) {
     gchar *title_utf8;
     gchar *title_local;
@@ -346,7 +353,7 @@ static void window_set_title (Display *disp, Window win, /* {{{ */
     
 }/*}}}*/
 
-static int window_to_desktop (Display *disp, Window win, int desktop) {/*{{{*/
+int window_to_desktop (Display *disp, Window win, int desktop) {/*{{{*/
     unsigned long *cur_desktop = NULL;
     Window root = DefaultRootWindow(disp);
    
@@ -369,7 +376,7 @@ static int window_to_desktop (Display *disp, Window win, int desktop) {/*{{{*/
             0, 0, 0, 0);
 }/*}}}*/
 
-static int activate_window (Display *disp, Window win, /* {{{ */
+int activate_window (Display *disp, Window win, /* {{{ */
         gboolean switch_desktop) {
     unsigned long *desktop;
 
@@ -382,28 +389,34 @@ static int activate_window (Display *disp, Window win, /* {{{ */
         }
     }
 
+    unsigned long tstamp = 0;
+    tstamp = get_timestamp(disp);
+
     if (switch_desktop && desktop) {
         if (client_msg(disp, DefaultRootWindow(disp), 
                     "_NET_CURRENT_DESKTOP", 
-                    *desktop, 0, 0, 0, 0) != EXIT_SUCCESS) {
+                    *desktop, tstamp, 0, 0, 0) != EXIT_SUCCESS) {
             p_verbose("Cannot switch desktop.\n");
         }
-        g_free(desktop);
+        XSync(disp,FALSE);
+        nanosleep(&wait_time_short,NULL);  
+        g_free(desktop); desktop = NULL  ;
     }
 
-    client_msg(disp, win, "_NET_ACTIVE_WINDOW", 
-            0, 0, 0, 0, 0);
+    client_msg(disp, win, "_NET_ACTIVE_WINDOW", 0, tstamp, 0, 0, 0);
     XMapRaised(disp, win);
+
+    /*XSync(disp,FALSE); */
 
     return EXIT_SUCCESS;
 }/*}}}*/
 
-static int close_window (Display *disp, Window win) {/*{{{*/
+int close_window (Display *disp, Window win) {/*{{{*/
     return client_msg(disp, win, "_NET_CLOSE_WINDOW", 
             0, 0, 0, 0, 0);
 }/*}}}*/
 
-static int window_state (Display *disp, Window win, char *arg) {/*{{{*/
+int window_state (Display *disp, Window win, char *arg) {/*{{{*/
     unsigned long action;
     Atom prop1 = 0;
     Atom prop2 = 0;
@@ -473,7 +486,7 @@ static int window_state (Display *disp, Window win, char *arg) {/*{{{*/
     }
 }/*}}}*/
 
-static gboolean wm_supports (Display *disp, const gchar *prop) {/*{{{*/
+gboolean wm_supports (Display *disp, const gchar *prop) {/*{{{*/
     Atom xa_prop = XInternAtom(disp, prop, False);
     Atom *list;
     unsigned long size;
@@ -496,7 +509,7 @@ static gboolean wm_supports (Display *disp, const gchar *prop) {/*{{{*/
     return FALSE;
 }/*}}}*/
 
-static int window_move_resize (Display *disp, Window win, char *arg) {/*{{{*/
+int window_move_resize (Display *disp, Window win, char *arg) {/*{{{*/
     signed long grav, x, y, w, h;
     unsigned long grflags;
     const char *argerr = "The -e option expects a list of comma separated integers: \"gravity,X,Y,width,height\"\n";
@@ -543,7 +556,7 @@ static int window_move_resize (Display *disp, Window win, char *arg) {/*{{{*/
     }
 }/*}}}*/
 
-static int action_window (Display *disp, Window win, char mode) {/*{{{*/
+int action_window (Display *disp, Window win, char mode) {/*{{{*/
     p_verbose("Using window: 0x%.8lx\n", win);
     switch (mode) {
         case 'a':
@@ -585,7 +598,7 @@ static int action_window (Display *disp, Window win, char mode) {/*{{{*/
     }
 }/*}}}*/
 
-static int action_window_pid (Display *disp, char mode) {/*{{{*/
+int action_window_pid (Display *disp, char mode) {/*{{{*/
     unsigned long wid;
 
     if (sscanf(options.param_window, "0x%lx", &wid) != 1 &&
@@ -598,7 +611,7 @@ static int action_window_pid (Display *disp, char mode) {/*{{{*/
     return action_window(disp, (Window)wid, mode);
 }/*}}}*/
 
-static int action_window_str (Display *disp, char mode) {/*{{{*/
+int action_window_str (Display *disp, char mode) {/*{{{*/
     Window activate = 0;
     Window *client_list;
     unsigned long client_list_size;
@@ -684,7 +697,7 @@ static int action_window_str (Display *disp, char mode) {/*{{{*/
     }
 }/*}}}*/
 
-static int list_desktops (Display *disp) {/*{{{*/
+int list_desktops (Display *disp) {/*{{{*/
     unsigned long *num_desktops = NULL;
     unsigned long *cur_desktop = NULL;
     unsigned long desktop_list_size = 0;
@@ -913,7 +926,7 @@ cleanup:
     return ret;
 }/*}}}*/
 
-static int longest_str (gchar **strv) {/*{{{*/
+int longest_str (gchar **strv) {/*{{{*/
     int max = 0;
     int i = 0;
     
@@ -927,7 +940,7 @@ static int longest_str (gchar **strv) {/*{{{*/
     return max;
 }/*}}}*/
 
-static Window *get_client_list (Display *disp, unsigned long *size) {/*{{{*/
+Window *get_client_list (Display *disp, unsigned long *size) {/*{{{*/
     Window *client_list;
 
     if ((client_list = (Window *)get_property(disp, DefaultRootWindow(disp), 
@@ -944,7 +957,7 @@ static Window *get_client_list (Display *disp, unsigned long *size) {/*{{{*/
     return client_list;
 }/*}}}*/
 
-static int list_windows (Display *disp) {/*{{{*/
+int list_windows (Display *disp) {/*{{{*/
     Window *client_list;
     unsigned long client_list_size;
     int i;
@@ -1028,29 +1041,32 @@ static int list_windows (Display *disp) {/*{{{*/
     return EXIT_SUCCESS;
 }/*}}}*/
 
-static gchar *get_window_class (Display *disp, Window win) {/*{{{*/
+gchar *get_window_class (Display *disp, Window win) {/*{{{*/
     gchar *class_utf8;
     gchar *wm_class;
+    gchar *wm_class_tr;
     unsigned long size;
 
     wm_class = get_property(disp, win, XA_STRING, "WM_CLASS", &size);
     if (wm_class) {
         gchar *p_0 = strchr(wm_class, '\0');
         if (wm_class + size - 1 > p_0) {
-            *(p_0) = '.';
+         /* andrei: */
+         wm_class_tr = p_0;
         }
         class_utf8 = g_locale_to_utf8(wm_class, -1, NULL, NULL, NULL);
     }
     else {
-        class_utf8 = NULL;
+         /* andrei: */
+        class_utf8 = g_locale_to_utf8("UNDEFINED", -1, NULL, NULL, NULL);
     }
 
-    g_free(wm_class);
+    g_free(wm_class); wm_class = NULL ;
     
     return class_utf8;
 }/*}}}*/
 
-static gchar *get_window_title (Display *disp, Window win) {/*{{{*/
+gchar *get_window_title (Display *disp, Window win) {/*{{{*/
     gchar *title_utf8;
     gchar *wm_name;
     gchar *net_wm_name;
@@ -1071,13 +1087,13 @@ static gchar *get_window_title (Display *disp, Window win) {/*{{{*/
         }
     }
 
-    g_free(wm_name);
-    g_free(net_wm_name);
+    g_free(wm_name); wm_name = NULL ;
+    g_free(net_wm_name); net_wm_name = NULL ;
     
     return title_utf8;
 }/*}}}*/
 
-static gchar *get_property (Display *disp, Window win, /*{{{*/
+gchar *get_property (Display *disp, Window win, /*{{{*/
         Atom xa_prop_type, gchar *prop_name, unsigned long *size) {
     Atom xa_prop_name;
     Atom xa_ret_type;
@@ -1134,7 +1150,7 @@ static gchar *get_property (Display *disp, Window win, /*{{{*/
     return ret;
 }/*}}}*/
 
-static Window Select_Window(Display *dpy) {/*{{{*/
+Window Select_Window(Display *dpy) {/*{{{*/
     /*
      * Routine to let user select a window using the mouse
      * Taken from xfree86.
@@ -1190,7 +1206,7 @@ static Window Select_Window(Display *dpy) {/*{{{*/
     return(target_win);
 }/*}}}*/
 
-static Window get_active_window(Display *disp) {/*{{{*/
+Window get_active_window(Display *disp) {/*{{{*/
     char *prop;
     unsigned long size;
     Window ret = (Window)0;
