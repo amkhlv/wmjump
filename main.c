@@ -293,8 +293,8 @@ int main(int argc, char **argv)
      int* window_number = malloc(client_list_size / sizeof(Window) * sizeof(int));
      gchar** title_of_button; 
      gchar** name_of_style;
-     title_of_button = g_malloc0( ( client_list_size+1 ) /sizeof(Window) * sizeof(gchar*) );
-     name_of_style   = g_malloc0( ( client_list_size+1 ) /sizeof(Window) * sizeof(gchar*) );
+     title_of_button = g_malloc0( ( client_list_size/sizeof(Window) + 1) * sizeof(gchar*) );
+     name_of_style   = g_malloc0( ( client_list_size/sizeof(Window) + 1) * sizeof(gchar*) );
      Window win_we_leave;
      gboolean win_we_leave_is_blacklisted ;
  
