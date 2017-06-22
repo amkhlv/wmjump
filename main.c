@@ -85,13 +85,8 @@ static void our_user_interface( gchar **flnames,
 
 static char *truncate_title(gchar *st);
 
-static void guess_screen_res (Display* dsp, 
-                              int* scr_sz_x,  int* scr_sz_y, 
-                              int* dsk_sz_x,  int* dsk_sz_y,
-                              int* left_marg, int* top_marg);
 
 gboolean current_only;
-static gboolean compiz_mode;
 gboolean do_check_desktop;
 static gboolean given_groupnumber;
 static gboolean reverse_list;
@@ -113,7 +108,6 @@ static gchar* home;
 int main(int argc, char **argv)
 {
  current_only = False;
- compiz_mode = False;
  do_check_desktop = False;
  given_groupnumber = False;
  autodestroy_on_lost_focus = True;
@@ -139,7 +133,6 @@ int main(int argc, char **argv)
         { reverse_list=True; }
    else if ((strcmp(argv[ia],"-p") == 0) || (strcmp(argv[ia],"--persist") == 0)) 
         { autodestroy_on_lost_focus = False; }
-   else if (strcmp(argv[ia],"--compiz") == 0) { compiz_mode=True;  }
    else if (strcmp(argv[ia],"--rich") == 0)   { boldface=True; }
    else if (strcmp(argv[ia],"--pipe") == 0)   { piped=True; }
    else if (strcmp(argv[ia],"--easy") == 0)   { double_clutch=False; }
@@ -263,7 +256,6 @@ int main(int argc, char **argv)
          fclose(named_pipe);
      }
  
-     if (current_only && !compiz_mode) { do_check_desktop=True; }
  
      Display *disp;
      if (! (disp = XOpenDisplay(NULL))) {
@@ -366,47 +358,6 @@ static void record_active_win (Window win)
     g_free(filename); filename = NULL ;
 }
 
-static void guess_screen_res (Display* disp1, 
-                              int* scr_sz_x,  int* scr_sz_y, 
-                              int* dsk_sz_x,  int* dsk_sz_y,
-                              int* left_marg, int* top_marg)
-    { 
-     unsigned long *fullsize = NULL;
-     unsigned long fullsize_size = 0;
-     unsigned long *deskar = NULL;
-     unsigned long deskar_size = 0;
-     if (! (fullsize = (unsigned long *)get_property(disp1, DefaultRootWindow(disp1),
-                     XA_CARDINAL, "_NET_DESKTOP_GEOMETRY", &fullsize_size))) {
-         p_verbose("Cannot get common size of all desktops (_NET_DESKTOP_GEOMETRY).\n");}
-     if (! (deskar = (unsigned long *)get_property(
-                     disp1, DefaultRootWindow(disp1),
-                     XA_CARDINAL, "_NET_WORKAREA", &deskar_size))) {
-         if (! (deskar = (unsigned long *)get_property(
-                         disp1, DefaultRootWindow(disp1),
-                         XA_CARDINAL, "_WIN_WORKAREA", &deskar_size))) {
-             p_verbose("Cannot get _NET_WORKAREA property.\n");}}
-     int full_size_x = (int)fullsize[0];
-     int full_size_y = (int)fullsize[1];
-     int desk_marg_x = (int)deskar[0];
-     int desk_marg_y = (int)deskar[1];
-     *left_marg = desk_marg_x; *top_marg = desk_marg_y;
-     int desk_size_x = (int)deskar[2];
-     int desk_size_y = (int)deskar[3];
-     *dsk_sz_x = desk_size_x; *dsk_sz_y = desk_size_y;
-     int num_cols = full_size_x/(desk_marg_x + desk_size_x);
-     int num_rows = full_size_y/(desk_marg_y + desk_size_y);
-/* unfortunately num_cols and num_rows would not calculate correctly for large right  or bottom margin */
-     int screen_size_x, screen_size_y; 
-     if (( (full_size_x % num_cols) != 0 ) && (verbose)) printf("wmjump: not sure about the width of the screen"); 
-     screen_size_x = full_size_x/num_cols;
-     if (( (full_size_y % num_rows) != 0 ) && (verbose)) printf("wmjump: not sure about the height of the screen"); 
-     screen_size_y = full_size_y/num_rows;
-     if (verbose) printf("wmjump: guessed screen resolution: %d x %d\n", screen_size_x, screen_size_y);
-     *scr_sz_x = screen_size_x;  *scr_sz_y = screen_size_y;
-     g_free(deskar);  deskar = NULL ;
-     g_free(fullsize); fullsize = NULL ;
-    }
-
 static void do_what_user_said ( Display* disp1, char* next_command ) 
     {
     unsigned long tstamp = 0;
@@ -438,25 +389,7 @@ static void do_what_user_said ( Display* disp1, char* next_command )
             client_msg(disp1, win1, "_NET_ACTIVE_WINDOW", 0, tstamp, 0, 0, 0);
             XMapRaised(disp1, win1);
             }
-    else if ( g_strrstr(next_command,g_strconcat("compiz_",NULL))) {
-            int screen_size_x, screen_size_y, desk_size_x, desk_size_y, leftmarg, topmarg;
-            guess_screen_res(disp1, &screen_size_x, &screen_size_y, 
-                                    &desk_size_x, &desk_size_y,
-                                    &leftmarg, &topmarg);
-            int xvp, yvp;
-            sscanf(next_command,"compiz_%d_%d", &xvp, &yvp);
-            if (verbose) printf("wmjump: jumping to viewport %d,%d\n", xvp +1 , yvp + 1 );
-            client_msg(disp1, DefaultRootWindow(disp1), "_NET_DESKTOP_VIEWPORT", 
-                       xvp * screen_size_x + (9 * screen_size_x)/10, 
-                       yvp * screen_size_y + (9 * screen_size_y)/10, 0, 0, 0);
-
-            XSync(disp1,FALSE);
-            if (double_clutch) { nanosleep(&wait_time_middle ,NULL); }
-            Window win1 = DefaultRootWindow(disp1);
-            client_msg(disp1, win1, "_NET_ACTIVE_WINDOW", 0, tstamp, 0, 0, 0);
-            XMapRaised(disp1, win1);
-            }
-    else    {
+   else    {
             int wnum ;
             sscanf(next_command,"%x",&wnum);
             if (verbose) {printf("\n"); printf("wmjump: switching to window %x\n",wnum); }
@@ -501,15 +434,6 @@ static void get_list_from_wm(   Display *disp,
     int screen_size_y = 0; 
     int desk_left_marg = 0;
     int desk_top_marg = 0;
-    if (compiz_mode) {
-      if (! (desktop_viewport = (unsigned long *)get_property(disp, DefaultRootWindow(disp),
-                      XA_CARDINAL, "_NET_DESKTOP_VIEWPORT", &desktop_viewport_size))) {
-          p_verbose("Cannot get common size of all desktops (_NET_DESKTOP_VIEWPORT).\n");
-      }
-      guess_screen_res(disp, &screen_size_x, &screen_size_y, 
-                             &desk_size_x, &desk_size_y,
-                             &desk_left_marg, &desk_top_marg);
-    }
 
 
     *win_we_leave_is_blacklisted = TRUE ; 
@@ -561,33 +485,6 @@ static void get_list_from_wm(   Display *disp,
             unsigned int wwidth, wheight, bw, depth;
             Window junkroot;
             int xm,ym;
-            if (compiz_mode) {
-                in_scope = False;
-
-                XGetGeometry (disp, client_list[i], &junkroot, &junkx, &junky,
-                                  &wwidth, &wheight, &bw, &depth);
-             /* XTranslateCoordinates (disp, client_list[i], junkroot, junkx, junky,
-                                       &x, &y, &junkroot);   */
-                int xvp = (int)desktop_viewport[0]; int yvp = (int)desktop_viewport[1];
-                xm = junkx + xvp + ((int)wwidth)/2;   ym = junky + yvp + ((int)wheight)/2;
-
-                if (current_only) {
-                    if (   ( desk_left_marg + desk_size_x > junkx ) /* win not too far right */
-                         &&( 0 < junkx + (int)wwidth  ) 
-                         &&( desk_top_marg  + desk_size_y > junky )
-                         &&( 0 < junky + (int)wheight ) ) 
-                         {
-                       in_scope = True;
-                       /*
-                       printf("desk_left_marg:%d,desk_size_x:%d,desk_top_marg:%d,desk_size_y:%d\n",
-                               desk_left_marg,desk_size_x,desk_top_marg,desk_size_y);
-                       printf("junkx:%d,wwidth:%d,junky:%d,wheight:%d\n",
-                               junkx,wwidth,junky,wheight);
-                       printf("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n");
-                       */
-                          }
-                                  }
-                             }
      
             if (do_check_desktop) {
                 unsigned long *now_desktop;
@@ -610,7 +507,7 @@ static void get_list_from_wm(   Display *disp,
                 in_scope = (*desktop == *now_desktop);
                 if (! active_window_is_strange) { g_free(now_desktop); now_desktop = NULL ; } 
                                    } 
-            else if (!compiz_mode) {in_scope = True;}
+            else {in_scope = True;}
 
             if ( in_scope || !current_only ) {
 
@@ -618,13 +515,7 @@ static void get_list_from_wm(   Display *disp,
             window_number[n] = i;
 
             gchar desk_id[12]; /* xx,yy perhaps use some unicode instead of comma */
-            if (compiz_mode) {
-                sprintf(desk_id, "%d,%d", 1 + xm/screen_size_x, 
-                                          1 + ym/screen_size_y );
-                             }
-            else {
-                sprintf(desk_id, "%d", (int)*desktop+1); 
-                 }
+            sprintf(desk_id, "%d", (int)*desktop+1);
             gchar *title_tr;
             title_tr = truncate_title(title_out);
             gchar *itemtitle ;
@@ -866,10 +757,6 @@ static void our_user_interface(
             GtkWidget *empty_label = gtk_label_new("*** NO WINDOWS ***");
             gtk_box_pack_start (GTK_BOX(vbox), empty_label, FALSE, TRUE, 0); }
 
-
-
-    int compiz_vp = -1;
-
     void on_mainwin_key_press_event (   GtkWidget    *widget,
                                         GdkEventKey  *event,
                                         gpointer     user_data ) {
@@ -880,16 +767,7 @@ static void our_user_interface(
         else {
         for (j=0; j < 9; j++) {
             if (ascii_code == (49+j) ) {
-                if (compiz_mode) { 
-                  if (compiz_vp < 0) compiz_vp = j;
-                  else { 
-                         send_command_to_switch_viewport(compiz_vp, j);
-                         gtk_main_quit();
-                       }
-                                 }
-                else {
-                  send_command_to_switch_desktop(j); gtk_main_quit();
-                     }
+                send_command_to_switch_desktop(j); gtk_main_quit();
                 num=j; j=100; }}
         for (j=0; j < number_of_buttons; j++) { 
             if (ascii_code == (97+j) ) { 
