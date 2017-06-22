@@ -1,4 +1,6 @@
 .hg/
+build-wmjump-Qt*/
 screenshot.xcf
 README.html
+wmjump.pro.user
 *~

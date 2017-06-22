@@ -107,11 +107,17 @@ bg[NORMAL]="#c7c7ff"
 bg[PRELIGHT]="#c7c7ff"
 }
 widget "*opera" style "myblue"
-widget "*chromium-browser" style "myblue"
 widget "*d3lphin" style "myblue"
 widget "*Thunar" style "myblue"
 widget "*evolution" style "myblue"
-widget "*midori" style "myblue"
+
+style "chromiumblue"
+{
+bg[NORMAL]="#d0e2f1"
+bg[PRELIGHT]="#d0e2f1"
+}
+widget "*chromium" style "chromiumblue"
+widget "*google-chrome" style "chromiumblue"
 
 style "myfern"
 {
