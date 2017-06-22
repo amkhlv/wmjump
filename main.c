@@ -773,12 +773,10 @@ static void our_user_interface(
             if (ascii_code == (97+j) ) { 
                 send_command_to_activate_window(j);
                 if (double_clutch) { nanosleep(&wait_time_long,NULL); }
-                num=j; j=100; 
-                gtk_main_quit();}
-                                              }
+                num=j; j=number_of_buttons;
+                gtk_main_quit();}}
              }
-        if (num == -1) {
-                send_command_to_do_nothing(); gtk_main_quit();} 
+        if (num == -1) { send_command_to_do_nothing(); gtk_main_quit();}
     }   
  
     
