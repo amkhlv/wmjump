@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "WMJUMP 1"
-.TH WMJUMP 1 "2014-08-19" "perl v5.24.1" "User Contributed Perl Documentation"
+.TH WMJUMP 1 "2017-06-22" "perl v5.24.1" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -152,22 +152,8 @@ Pressing the space bar brings you to the previous window.
 Pressing the number key 1 to 9 brings you to the
 corresponding workspace.
 .PP
-If you use \fICompiz\fR 
-(which is the default window manager on recent Ubuntu distributions), 
-then use the Compiz compatibility mode:
-.PP
-.Vb 1
-\&    wmjump \-\-compiz
-.Ve
-.PP
-In \fICompiz\fR the workspaces are arranged into a grid, so each workspace has a
-pair of ``coordinates'' x,y. To switch to a given workspace in a \fB\-\-compiz\fR
-mode, press two number keys. For example, if you need to switch to the desktop
-with coordinates x,y=1,3 you have to first press 1 and then press 3.  (The
-switching works for the grid of up to 9x9 workspaces.)
-.PP
-I recommend creating a keyboard shortcut for  \fBwmjump\fR (or \fBwmjump \-\-compiz\fR
-).  In \fIXfce\fR, go to Settings \-> Settings Manager \-> Keyboard \-> Keyboard
+I recommend creating a keyboard shortcut for  \fBwmjump\fR.  
+In \fIXfce\fR, go to Settings \-> Settings Manager \-> Keyboard \-> Keyboard
 Shortcuts. In \fIgnome\fR, google for: gnome custom keyboard shortcut.  I use
 <Alt>\-k after \fIIon3\fR. Also see \fB\s-1OPTIONS\s0\fR.
 .PP
@@ -183,10 +169,6 @@ and is not empty. For example, the user may schedule a cron job to put the
 current date+time into this file.
 .PP
 \&\fBwmjump\fR is supposed to work on all \fIEWMH/NetWM\fR compatible window managers.
-I tested it on \fIXfce\fR (Xubuntu), \fIgnome\fR \fIMetacity\fR (Ubuntu, Fedora),
-\&\fIgnome\fR \fICompiz\fR (see \s-1OPTION \s0\fB\-\-compiz\fR), \fIKwin\fR (Kubuntu) and \fIStumpWM\fR
-(v0.9.5 on Intrepid, see special instructions for \fIStumpWM\fR in the \s-1SETUP\s0
-section). Works with \fIxmonad\fR, see the xmonad section in the wiki.
 .SH "OPTIONS"
 .IX Header "OPTIONS"
 The following options modify the behaviour of  \fBwmjump\fR
@@ -201,12 +183,6 @@ jump across desktops.  On the other hand, pressing \fIAlt\fR\fI\-j\fR shows only
 windows on the current desktop. This is useful when you are running many
 windows, organized by the desktop. (For example, network applications on
 Desktop 1, games on Desktop 2, office suite on Desktop 3, etc.)
-.IP "\fB\-\-compiz\fR" 4
-.IX Item "--compiz"
-Use this option if you are on \fICompiz\fR window manager (``wall'').  The \fICompiz\fR
-``wall'' desktop is organized into a 2\-dimensional grid. If you want to
-teleport to the viewport with coordinate x,y you should press two corresponding
-number keys.  For example, to jump to x,y=2,3 press first 2 then 3.
 .IP "\fB\-\-easy\fR" 4
 .IX Item "--easy"
 With this option wmjump uses a simplified procedure for switching 
@@ -233,7 +209,7 @@ to prevent ``stray'' wmjump windows. But if \fBwmjump\fR is started with  the
 focus.
 .IP "\fB\-\-pipe\fR" 4
 .IX Item "--pipe"
-This is an experimental option. The idea is to try to speed up the firing-up
+This might speed up the firing-up
 of the wmjump dialog. With this option, a pipe is created:
     ~/.wmjump/pipe.fifo
 and the started wmjump is waiting on the pipe. In this regime wmjump
@@ -340,8 +316,6 @@ is to tell wmjump on which group it is started. It assumes that groups are numbe
 to up to 9. (Notice that wmjump looks up the
 group number only if started with the \fB\-\-current\fR option. Without this option
 it does not need to know the desktop number.)
-.PP
-For \fIxmonad\fR users, see the wiki page \f(CW\*(C`http://code.google.com/p/wmjump/wiki/xmonad\*(C'\fR
 .SH "BUGS"
 .IX Header "BUGS"
 On \fIFvwm\fR the windows are listed in random order rather than historical,

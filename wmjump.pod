@@ -17,20 +17,9 @@ Pressing the space bar brings you to the previous window.
 Pressing the number key 1 to 9 brings you to the
 corresponding workspace.
 
-If you use I<Compiz> 
-(which is the default window manager on recent Ubuntu distributions), 
-then use the Compiz compatibility mode:
 
-    wmjump --compiz
-
-In I<Compiz> the workspaces are arranged into a grid, so each workspace has a
-pair of ``coordinates'' x,y. To switch to a given workspace in a B<--compiz>
-mode, press two number keys. For example, if you need to switch to the desktop
-with coordinates x,y=1,3 you have to first press 1 and then press 3.  (The
-switching works for the grid of up to 9x9 workspaces.)
-
-I recommend creating a keyboard shortcut for  B<wmjump> (or B<wmjump --compiz>
-).  In I<Xfce>, go to Settings -> Settings Manager -> Keyboard -> Keyboard
+I recommend creating a keyboard shortcut for  B<wmjump>.  
+In I<Xfce>, go to Settings -> Settings Manager -> Keyboard -> Keyboard
 Shortcuts. In I<gnome>, google for: gnome custom keyboard shortcut.  I use
 <Alt>-k after I<Ion3>. Also see B<OPTIONS>.
 
@@ -46,11 +35,6 @@ and is not empty. For example, the user may schedule a cron job to put the
 current date+time into this file.
 
 B<wmjump> is supposed to work on all I<EWMH/NetWM> compatible window managers.
-I tested it on I<Xfce> (Xubuntu), I<gnome> I<Metacity> (Ubuntu, Fedora),
-I<gnome> I<Compiz> (see OPTION B<--compiz>), I<Kwin> (Kubuntu) and I<StumpWM>
-(v0.9.5 on Intrepid, see special instructions for I<StumpWM> in the SETUP
-section). Works with I<xmonad>, see the xmonad section in the wiki.  
-
 
 =head1 OPTIONS
 
@@ -69,13 +53,6 @@ jump across desktops.  On the other hand, pressing I<Alt>I<-j> shows only the
 windows on the current desktop. This is useful when you are running many
 windows, organized by the desktop. (For example, network applications on
 Desktop 1, games on Desktop 2, office suite on Desktop 3, etc.)
-
-=item B<--compiz> 
-
-Use this option if you are on I<Compiz> window manager (``wall'').  The I<Compiz>
-``wall'' desktop is organized into a 2-dimensional grid. If you want to
-teleport to the viewport with coordinate x,y you should press two corresponding
-number keys.  For example, to jump to x,y=2,3 press first 2 then 3.
 
 =item B<--easy>
 
@@ -107,7 +84,7 @@ focus.
 
 =item B<--pipe>
 
-This is an experimental option. The idea is to try to speed up the firing-up
+This might speed up the firing-up
 of the wmjump dialog. With this option, a pipe is created:
     ~/.wmjump/pipe.fifo
 and the started wmjump is waiting on the pipe. In this regime wmjump
@@ -205,8 +182,6 @@ is to tell wmjump on which group it is started. It assumes that groups are numbe
 to up to 9. (Notice that wmjump looks up the
 group number only if started with the B<--current> option. Without this option
 it does not need to know the desktop number.)
-
-For I<xmonad> users, see the wiki page C<http://code.google.com/p/wmjump/wiki/xmonad>
 
 =head1 BUGS
 
