@@ -256,6 +256,7 @@ int main(int argc, char **argv)
          fclose(named_pipe);
      }
  
+     if (current_only) { do_check_desktop=True; }
  
      Display *disp;
      if (! (disp = XOpenDisplay(NULL))) {
