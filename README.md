@@ -13,7 +13,7 @@ Pressing the space bar brings up the previous window. Pressing 1-9 "teleports" t
 Building
 ========
 
-    sudo apt-get install build-essential libx11-dev libxmu-dev libglib2.0-dev libgtk2.0-dev libcairo2-dev libgdk-pixbuf2.0-dev libatk1.0-dev
+    sudo apt-get install build-essential libx11-dev libxmu-dev libglib2.0-dev libgtk2.0-dev libcairo2-dev libgdk-pixbuf2.0-dev libatk1.0-dev qt5-qmake qt5-default
     qmake
     make
 
