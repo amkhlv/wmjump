@@ -709,6 +709,8 @@ static void our_user_interface(
         GtkWidget *messagearea ;
         GtkTextBuffer *buffer;
         messagearea = (GtkWidget*) gtk_text_view_new ();
+        gtk_text_view_set_editable(messagearea, False);
+        gtk_text_view_set_cursor_visible(messagearea, False);
         set_my_css_provider(messagearea);
         add_my_css_class(messagearea, "top_message_area");
         gtk_text_view_set_justification (GTK_TEXT_VIEW (messagearea), GTK_JUSTIFY_CENTER) ;
