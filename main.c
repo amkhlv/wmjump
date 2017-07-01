@@ -32,7 +32,6 @@ Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <sys/stat.h>
 #include <time.h>
 
-
 #define MAX_PROPERTY_VALUE_LEN 4096
 #define p_verbose(...) if (verbose) { \
     fprintf(stderr, __VA_ARGS__); \
@@ -59,7 +58,7 @@ static void do_what_user_said ( Display* dsp, char* next_command );
 static void get_list_from_wm(   Display *dsp, 
                                 Window *client_list,
                                 unsigned long client_list_size,
-                                int *number_of_buttons,
+                                unsigned int *number_of_buttons,
                                 int *window_number,
                                 gchar **title_of_button,
                                 gchar **name_of_style,
@@ -227,7 +226,6 @@ int main(int argc, char **argv)
          FILE *named_pipe;
          named_pipe = fopen(g_strconcat(home,"/.wmjump/",PIPEFILE,NULL), "r");
          gchar go_string[20];
-         gchar *line = fgets(go_string, 20, named_pipe);
          if      (strcmp(go_string,"all\n") == 0)     { current_only=False; exit_code = 3; }
          else if (strcmp(go_string,"current\n") == 0) { current_only=True;  exit_code = 3; }
          else {  /* exiting the program */
@@ -260,7 +258,7 @@ int main(int argc, char **argv)
      int szofw=sizeof(Window);
      Window *client_list = g_malloc(client_list_size*szofw);
      /* reversing the list if required */
-     int j; 
+     unsigned int j;
      for (j=0; j<client_list_size/szofw; j++)
          { 
            if (reverse_list) 
@@ -268,7 +266,7 @@ int main(int argc, char **argv)
            else { client_list[j] = client_list_direct_order[j]; }
          }
  
-     int number_of_buttons;
+     unsigned int number_of_buttons;
      int* window_number = malloc(client_list_size / sizeof(Window) * sizeof(int));
      gchar** title_of_button; 
      gchar** name_of_style;
@@ -391,7 +389,7 @@ static void do_what_user_said ( Display* disp1, char* next_command )
 static void get_list_from_wm(   Display *disp, 
                                 Window *client_list,
                                 unsigned long client_list_size,
-                                int *number_of_buttons,
+                                unsigned int *number_of_buttons,
                                 int *window_number,
                                 gchar **title_of_button,
                                 gchar **name_of_style,
@@ -413,29 +411,18 @@ static void get_list_from_wm(   Display *disp,
     g_free(file_blacklist_in_home_dir); file_blacklist_in_home_dir = NULL ;
 
     unsigned long *desktop_viewport = NULL;
-    unsigned long desktop_viewport_size = 0;
-    int desk_size_x = 0;
-    int desk_size_y = 0;
-    int screen_size_x = 0; 
-    int screen_size_y = 0; 
-    int desk_left_marg = 0;
-    int desk_top_marg = 0;
-
-
     *win_we_leave_is_blacklisted = TRUE ; 
     *number_of_buttons = 0;
     Window active_window = window_now_active(disp);
     *win_we_leave = active_window;
     p_verb("active window = %x\n",(int)active_window);
-    gchar *itemclass ;
     /* Check if active_window is one from the client list: */
     gboolean active_window_is_strange = TRUE ;
-    int i ;
+    unsigned int i ;
     for (i = 0; i < client_list_size / sizeof(Window); i++) {
         if (active_window == client_list[i]) { active_window_is_strange = FALSE ; break ; }
         }
-    if (active_window_is_strange) { p_verbose("wmjump: *** STRANGE ACTIVE WINDOW: win=%x ***\n", (int)active_window); 
-        itemclass = "UNDETECTED" ; }
+    if (active_window_is_strange) { p_verbose("wmjump: *** STRANGE ACTIVE WINDOW: win=%x ***\n", (int)active_window); }
     else {
         gchar *itemclass = get_window_class(disp,active_window);
         gchar *class_is_blacklisted = g_strrstr(g_strconcat("\n",blacklist,"\n",NULL),
@@ -467,33 +454,38 @@ static void get_list_from_wm(   Display *disp,
                     printf("wmjump: Cannot find desktop ID of the window.\n"); }}
 
             gboolean in_scope;
-            int junkx, junky;
-            unsigned int wwidth, wheight, bw, depth;
-            Window junkroot;
-            int xm,ym;
-     
+
             if (do_check_desktop) {
-                unsigned long *now_desktop;
-                if (given_groupnumber) { 
-                                         unsigned long uldn = (unsigned long)groupnumber;
-                                         now_desktop = &uldn;
-                                       }
-                else {
-                    if (active_window_is_strange) { p_verbose("wmjump: *** COULD NOT DETECT ACTIVE WINDOW ***\n"); 
-                                              unsigned long fake_desktop = 9999; 
-                                              now_desktop = &fake_desktop; }
-                    else {
-                        if ((now_desktop = (unsigned long *)get_property(disp, active_window,
-                            XA_CARDINAL, "_NET_WM_DESKTOP", NULL)) == NULL) {
-                        if ((now_desktop = (unsigned long *)get_property(disp, active_window,
-                            XA_CARDINAL, "_WIN_WORKSPACE", NULL)) == NULL) {
-                        printf("wmjump: Cannot find desktop ID of the window.\n"); }}
+                unsigned long fake_desktop = 9999;
+                unsigned long *now_desktop = &fake_desktop;
+                if (given_groupnumber) {
+                    unsigned long uldn = (unsigned long)groupnumber;
+                    now_desktop = &uldn;
+                } else {
+                    if (active_window_is_strange) {
+                        p_verbose("wmjump: *** COULD NOT DETECT ACTIVE WINDOW ***\n");
+                    } else {
+                        if ((now_desktop = (unsigned long *)get_property(
+                                 disp,
+                                 active_window,
+                                 XA_CARDINAL,
+                                 "_NET_WM_DESKTOP",
+                                 NULL
+                                 )) == NULL) {
+                            if ((now_desktop = (unsigned long *)get_property(
+                                     disp,
+                                     active_window,
+                                     XA_CARDINAL,
+                                     "_WIN_WORKSPACE",
+                                     NULL
+                                     )) == NULL) {
+                                printf("wmjump: Cannot find desktop ID of the window.\n");
+                            }
+                        }
                     }
                 }
                 in_scope = (*desktop == *now_desktop);
-                if (! active_window_is_strange) { g_free(now_desktop); now_desktop = NULL ; } 
-                                   } 
-            else {in_scope = True;}
+            } else {in_scope = True;}
 
             if ( in_scope || !current_only ) {
 
@@ -562,7 +554,7 @@ static void our_user_interface(
     GtkWidget *itembut[client_list_size];
     GtkWidget *itemlabel[client_list_size];
 
-    vbox = gtk_vbox_new (1, 0); 
+    vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_set_homogeneous(GTK_BOX(vbox), FALSE);
     message_frame = gtk_frame_new (NULL); 
     gtk_frame_set_shadow_type(GTK_FRAME(message_frame), GTK_SHADOW_OUT);
@@ -644,13 +636,6 @@ static void our_user_interface(
         if ( write(pipe_descr[1], a, len+1) == -1 ) printf("wmjump: --- could not write to pipe ---\n"); 
         }
 
-    void send_command_to_switch_viewport (int rw, int clmn) {
-        char a[100];
-        int len = sprintf(a,"compiz_%d_%d", rw, clmn);
-        if ( write(pipe_descr[1], a, len+1) == -1 ) printf("wmjump: --- could not write to pipe ---\n"); 
-        if (! win_we_leave_is_blacklisted ) { record_active_win(win_we_leave); }
-        }
-
     void mainwin_destroy() { gtk_main_quit();}
 
     gchar   *message_file = g_strconcat(home,"/.wmjump/",MESSAGEFILE,NULL);
@@ -664,9 +649,8 @@ static void our_user_interface(
     g_free(message1); message1 = NULL ;
     g_free(message_file) ; message_file = NULL ;
 
-
     mainwin = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_wmclass(GTK_WINDOW(mainwin), "wmjump", "wmjump");
+    //gtk_window_set_wmclass(GTK_WINDOW(mainwin), "wmjump", "wmjump");
     gtk_window_set_title(GTK_WINDOW(mainwin), "wmjump");
     gtk_window_set_decorated (GTK_WINDOW(mainwin),FALSE);
     if (move_window) {
@@ -709,8 +693,8 @@ static void our_user_interface(
         GtkWidget *messagearea ;
         GtkTextBuffer *buffer;
         messagearea = (GtkWidget*) gtk_text_view_new ();
-        gtk_text_view_set_editable(messagearea, False);
-        gtk_text_view_set_cursor_visible(messagearea, False);
+        gtk_text_view_set_editable(GTK_TEXT_VIEW (messagearea), False);
+        gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW (messagearea), False);
         set_my_css_provider(messagearea);
         add_my_css_class(messagearea, "top_message_area");
         gtk_text_view_set_justification (GTK_TEXT_VIEW (messagearea), GTK_JUSTIFY_CENTER) ;
