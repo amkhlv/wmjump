@@ -11,7 +11,7 @@ SOURCES += \
     wmctrl.c
 
 unix: CONFIG += link_pkgconfig
-unix: PKGCONFIG += gtk+-2.0
+unix: PKGCONFIG += gtk+-3.0
 unix: PKGCONFIG += glib-2.0
 unix: PKGCONFIG += cairo
 unix: PKGCONFIG += gdk-pixbuf-2.0

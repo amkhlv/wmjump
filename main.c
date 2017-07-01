@@ -41,7 +41,7 @@ Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     fprintf(stdout, __VA_ARGS__); \
 }
 #define TRUNCATE_TO_LEN 40
-#define GTKRCFILE "wmjump-rc"
+#define CSSFILE "wmjump.css"
 #define BLACKLISTFILE "wmjump-blacklist"
 #define GOBACKFILE "wmjump-previous-window"
 #define PIPEFILE "pipe.fifo"
@@ -71,7 +71,7 @@ static Window window_now_active(Display *dsp);
 
 static void record_active_win (Window wn);
 
-static void our_user_interface( gchar **flnames,
+static void our_user_interface(
                                 int pipe_descr[2],
                                 Window* client_list,
                                 int client_list_size,
@@ -171,20 +171,6 @@ int main(int argc, char **argv)
  init_charset();
 
  home = getenv("HOME");
-
- /* Setting up the default gtkrc files: */
- gchar *filenames[3];
- gchar *file_rc_in_home_dir = g_strconcat(home,"/.wmjump/",GTKRCFILE,NULL);
- if ( g_file_test(file_rc_in_home_dir,G_FILE_TEST_EXISTS) ) 
-     {
-     filenames[0]=file_rc_in_home_dir; 
-     }
- else
-     {
-     filenames[0]=g_strconcat("/etc/wmjump/",GTKRCFILE,NULL);
-     }
- filenames[1]=NULL;
- filenames[2]=NULL;
 
  /* Checking if ~/.wmjump exists, and if not creating it: */
  gchar *wmjump_dirname = g_strconcat(home,"/.wmjump/",NULL);
@@ -306,8 +292,7 @@ int main(int argc, char **argv)
      XSync(disp,FALSE);
      XCloseDisplay(disp);
      
-     our_user_interface(filenames,
-                        pipe_descr,
+     our_user_interface(pipe_descr,
                         client_list,
                         client_list_size,
                         number_of_buttons, 
@@ -555,8 +540,8 @@ static void get_list_from_wm(   Display *disp,
     g_free(desktop_viewport); desktop_viewport = NULL ;
 }
 
+
 static void our_user_interface(  
-                            gchar **filenames,
                             int pipe_descr[2],
                             Window* client_list,
                             int client_list_size,
@@ -567,9 +552,11 @@ static void our_user_interface(
                             Window win_we_leave,
                             gboolean win_we_leave_is_blacklisted,
                             int loc_x, int loc_y, int timeout_sec) {
-    gtk_rc_set_default_files( filenames );
 
     gtk_init(NULL, NULL);
+    g_object_set (gtk_settings_get_default (), "gtk-error-bell", False, NULL);
+    GtkCssProvider *cssProvider  = gtk_css_provider_new();
+    gtk_css_provider_load_from_path(cssProvider,   g_strconcat(home, "/.wmjump/",CSSFILE,NULL), NULL);
 
     GtkWidget *mainwin , *vbox, *message_frame;
     GtkWidget *itembut[client_list_size];
@@ -579,6 +566,17 @@ static void our_user_interface(
     gtk_box_set_homogeneous(GTK_BOX(vbox), FALSE);
     message_frame = gtk_frame_new (NULL); 
     gtk_frame_set_shadow_type(GTK_FRAME(message_frame), GTK_SHADOW_OUT);
+
+    void set_my_css_provider(GtkWidget *w) {
+        gtk_style_context_add_provider(
+                gtk_widget_get_style_context(w),
+                GTK_STYLE_PROVIDER(cssProvider),
+                GTK_STYLE_PROVIDER_PRIORITY_USER
+                );
+    }
+    void add_my_css_class(GtkWidget *w, gchar *classname) {
+        gtk_style_context_add_class(gtk_widget_get_style_context(w), classname);
+    }
 
     void send_command_to_switch_desktop (int i) {
         char a[100];
@@ -679,7 +677,8 @@ static void our_user_interface(
     gtk_container_set_border_width (GTK_CONTAINER(mainwin),BORDERWIDTH);
     gchar *windowname = "main_window";
     if (current_only) windowname = "main_window_currentonly";
-    gtk_widget_set_name (mainwin,windowname);
+    set_my_css_provider(mainwin);
+    add_my_css_class(mainwin,windowname);
     g_signal_connect (G_OBJECT (mainwin), "destroy", G_CALLBACK (mainwin_destroy), NULL);
 
     void mainwin_lostfocus() { 
@@ -697,10 +696,6 @@ static void our_user_interface(
     */
     void on_window_show(GtkWidget *w, gpointer user_data) {
       /* grabbing might not succeed immediately... */
-      while (gdk_keyboard_grab(w->window, FALSE, GDK_CURRENT_TIME) != GDK_GRAB_SUCCESS) {
-        /* ...wait a while and try again */
-        sleep(0.1);
-      }
     }
     g_signal_connect(G_OBJECT(mainwin), "show", G_CALLBACK(on_window_show), NULL);
 
@@ -714,6 +709,8 @@ static void our_user_interface(
         GtkWidget *messagearea ;
         GtkTextBuffer *buffer;
         messagearea = (GtkWidget*) gtk_text_view_new ();
+        set_my_css_provider(messagearea);
+        add_my_css_class(messagearea, "top_message_area");
         gtk_text_view_set_justification (GTK_TEXT_VIEW (messagearea), GTK_JUSTIFY_CENTER) ;
         buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (messagearea));
         gchar *trailing_newline ;
@@ -721,11 +718,6 @@ static void our_user_interface(
         if ( trailing_newline != NULL ) { *trailing_newline = ' '  ; } 
         gtk_text_buffer_set_text (buffer, message, -1);
         gtk_text_view_set_editable (GTK_TEXT_VIEW (messagearea), FALSE);
-        GTK_WIDGET_UNSET_FLAGS(messagearea, GTK_CAN_FOCUS);
-        /*
-        messagelabel =gtk_bin_get_child(GTK_BIN(messagebut));
-        gtk_label_set_use_markup((gpointer)messagelabel, TRUE) ;
-        */
         gtk_container_add((GtkContainer*) message_frame, messagearea);
         gtk_box_pack_start (GTK_BOX(vbox), message_frame, FALSE, TRUE, 0); 
         } 
@@ -743,17 +735,19 @@ static void our_user_interface(
             j=number_of_buttons; }}}
 
     /* Creating buttons: */
-    int j = 0; 
+    gchar btn_prefix[5] = "wbtn_";
+    int j ;
     for (j = 0; j < number_of_buttons; j++) {
             itembut[j] = (GtkWidget*) gtk_button_new_with_label (title_of_button[j]); 
-            gtk_button_set_relief(GTK_BUTTON(itembut[j]),GTK_RELIEF_NORMAL);
+            gtk_button_set_relief(GTK_BUTTON(itembut[j]),GTK_RELIEF_NONE);
             g_signal_connect ( G_OBJECT (itembut[j]), "clicked",G_CALLBACK (itembut_click), 
             (gpointer)itembut[j] );
             itemlabel[j] =gtk_bin_get_child(GTK_BIN(itembut[j]));
             gtk_label_set_use_markup((gpointer)itemlabel[j], boldface);
-            gtk_widget_set_name (itembut[j],name_of_style[j]);
-            gtk_widget_set_name (itemlabel[j],name_of_style[j]);
-            gtk_box_pack_start (GTK_BOX(vbox), itembut[j], FALSE, TRUE, 0); } 
+            set_my_css_provider(itembut[j]);
+            add_my_css_class(itembut[j], g_strconcat(btn_prefix, name_of_style[j], NULL));
+            add_my_css_class(itembut[j], "wmjump_button");
+            gtk_box_pack_start (GTK_BOX(vbox), itembut[j], FALSE, TRUE, 0); }
     if (number_of_buttons == 0) {
             GtkWidget *empty_label = gtk_label_new("*** NO WINDOWS ***");
             gtk_box_pack_start (GTK_BOX(vbox), empty_label, FALSE, TRUE, 0); }
@@ -764,25 +758,31 @@ static void our_user_interface(
         int num, j;
         num=-1;
         int ascii_code = event->keyval;
-        if (ascii_code == 32) { num=1000; send_command_to_go_back(); gtk_main_quit(); }
+        if (ascii_code == 32) {
+            gtk_main_quit();
+            num=1000;
+            send_command_to_go_back();
+        }
         else {
         for (j=0; j < 9; j++) {
             if (ascii_code == (49+j) ) {
-                send_command_to_switch_desktop(j); gtk_main_quit();
+                gtk_main_quit();
+                send_command_to_switch_desktop(j);
                 num=j; j=100; }}
         for (j=0; j < number_of_buttons; j++) { 
             if (ascii_code == (97+j) ) { 
+                gtk_main_quit();
                 send_command_to_activate_window(j);
                 if (double_clutch) { nanosleep(&wait_time_long,NULL); }
                 num=j; j=number_of_buttons;
-                gtk_main_quit();}}
+                }}
              }
         if (num == -1) { send_command_to_do_nothing(); gtk_main_quit();}
     }   
  
     
-    gtk_signal_connect (GTK_OBJECT (mainwin), "key_press_event",
-                      GTK_SIGNAL_FUNC (on_mainwin_key_press_event),
+    g_signal_connect (G_OBJECT (mainwin), "key_press_event",
+                      G_CALLBACK (on_mainwin_key_press_event),
                       NULL);
 
     gtk_widget_show_all (mainwin);

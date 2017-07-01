@@ -1,0 +1,80 @@
+
+.main_window {
+    background: #00ccff;
+}
+
+
+.main_window_currentonly {
+    background: #ccff00;
+}
+
+.top_message_area {
+  font-family: DejaVu Sans;
+  font-size: 16pt;
+  background: #F0F8FF;
+}
+
+.wmjump_button {
+  font-family: DejaVu;
+  font-size: 14pt;
+}
+
+.wbtn_evolution , 
+.wbtn_thunar {
+  background: #c7c7ff;
+}
+
+.wbtn_emacs {
+    background: #2F4F4F;
+    color: #FAEBD7;
+    text-shadow: 0px 0px #2F4F4F;
+}
+
+.wbtn_tk {
+    background: #99ccff;
+}
+
+.wbtn_acroread, .wbtn_gsview {
+    background: #FF9eaa;
+}
+
+.wbtn_xfce4-terminal,
+.wbtn_gnome-terminal,
+.wbtn_konsole,
+.wbtn_urxvt,
+.wbtn_xterm,
+.wbtn_x-terminal-emulator {
+    background: #fcf670;
+    color: #000060;
+}
+
+.wbtn_gvim {
+    background: #84EC84;
+}
+
+.wbtn_chromium, .wbtn_google-chrome {
+    background: #d0e2f1;
+}
+
+.wbtn_Navigator {
+    background: #FFA54F;
+    color: #000060;
+}
+
+.wbtn_todo-reminder {   
+    background: #FF0000;
+    color: #FFFFFF;
+}
+
+.wbtn_gnome-volume-control,
+.wbtn_pavucontrol {
+    background: #aaddc3;
+    color: #000099;
+}
+
+.wbtn_rhythmbox, .wbtn_vlc, .wbtn_smplayer {
+    background: #aaddc3;
+    color: #990000;
+}
+
+/* happy wmjumping! */
