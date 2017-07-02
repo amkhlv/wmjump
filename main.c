@@ -223,6 +223,7 @@ int main(int argc, char **argv)
          FILE *named_pipe;
          named_pipe = fopen(g_strconcat(home,"/.wmjump/",PIPEFILE,NULL), "r");
          gchar go_string[20];
+         fgets(go_string, 20, named_pipe);
          if      (strcmp(go_string,"all\n") == 0)     { current_only=False; exit_code = 3; }
          else if (strcmp(go_string,"current\n") == 0) { current_only=True;  exit_code = 3; }
          else {  /* exiting the program */
