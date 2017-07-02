@@ -1,17 +1,33 @@
+/*
+ * Spacing between buttons is the second argument in
+ *   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 1);
+ */
 
 .main_window {
-    background: #00ccff;
+    /*background: #00ccff;*/
+    background-image: url("4734466.png");  /* relative to .wmjump dir */  
 }
 
 
 .main_window_currentonly {
-    background: #ccff00;
+    /*background: #ccff00;*/
+    background-image: url("1949347.png");;
+}
+
+.top_message_frame {
+  /* 
+   * Border is determined by:  gtk_frame_set_shadow_type(GTK_FRAME(message_frame), GTK_SHADOW_NONE); 
+   */
 }
 
 .top_message_area {
+  background: transparent;
   font-family: DejaVu Sans;
-  font-size: 16pt;
-  background: #F0F8FF;
+  font-size: 24pt;
+}
+.top_message_area text {
+  background: transparent;
+  color: white;
 }
 
 .wmjump_button {
@@ -36,6 +52,7 @@
 }
 
 .wbtn_emacs {
+
     background: #2F4F4F;
     color: #FAEBD7;
     text-shadow: 0px 0px #2F4F4F;
@@ -45,7 +62,7 @@
     background: #99ccff;
 }
 
-.wbtn_acroread, .wbtn_gsview {
+.wbtn_acroread, .wbtn_gsview, .wbtn_pdq {
     background: #FF9eaa;
 }
 

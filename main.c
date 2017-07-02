@@ -547,15 +547,6 @@ static void our_user_interface(
     GtkCssProvider *cssProvider  = gtk_css_provider_new();
     gtk_css_provider_load_from_path(cssProvider,   g_strconcat(home, "/.wmjump/",CSSFILE,NULL), NULL);
 
-    GtkWidget *mainwin , *vbox, *message_frame;
-    GtkWidget *itembut[client_list_size];
-    GtkWidget *itemlabel[client_list_size];
-
-    vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    gtk_box_set_homogeneous(GTK_BOX(vbox), FALSE);
-    message_frame = gtk_frame_new (NULL); 
-    gtk_frame_set_shadow_type(GTK_FRAME(message_frame), GTK_SHADOW_OUT);
-
     void set_my_css_provider(GtkWidget *w) {
         gtk_style_context_add_provider(
                 gtk_widget_get_style_context(w),
@@ -566,6 +557,18 @@ static void our_user_interface(
     void add_my_css_class(GtkWidget *w, gchar *classname) {
         gtk_style_context_add_class(gtk_widget_get_style_context(w), classname);
     }
+
+    GtkWidget *mainwin , *vbox, *message_frame;
+    GtkWidget *itembut[client_list_size];
+    GtkWidget *itemlabel[client_list_size];
+
+    vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 1);
+    gtk_box_set_homogeneous(GTK_BOX(vbox), FALSE);
+    message_frame = gtk_frame_new (NULL); 
+    set_my_css_provider(message_frame);
+    add_my_css_class(message_frame, "top_message_frame");
+    gtk_frame_set_shadow_type(GTK_FRAME(message_frame), GTK_SHADOW_NONE);
+
 
     void send_command_to_switch_desktop (int i) {
         char a[100];
