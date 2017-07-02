@@ -17,6 +17,7 @@
 .wmjump_button {
   font-family: DejaVu;
   font-size: 14pt;
+  background: #dddddd;
   border: none;
 }
 .wmjump_button:hover {
@@ -26,6 +27,7 @@
 }
 .wmjump_button:hover:active {
   background-color: red;
+  transition: 300ms;
 }
 
 .wbtn_evolution , 
