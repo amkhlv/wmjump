@@ -199,26 +199,23 @@ int main(int argc, char **argv)
      close(pipe_descr[1]);
      if ( read(pipe_descr[0], next_command, sizeof(next_command)) == -1 ) {
                         printf("wmjump: --- could not read the pipe ---\n"); return EXIT_FAILURE; }
- 
- 
- 
+
      Display *disp;
      if (! (disp = XOpenDisplay(NULL))) {
          fputs("Cannot open display.\n", stderr);
          return EXIT_FAILURE;
      }
  
+     int child_status;
+     wait(&child_status);
      do_what_user_said (disp, next_command);
  
      XCloseDisplay(disp);
-     int child_status;
-     wait(&child_status);
      not_enough = False ;
      if (! WIFEXITED(child_status)) { printf("wmjump: error") ;}
      else { if (piped) {if (WEXITSTATUS(child_status) == 3)  {not_enough = True;} }}
      /* if ((child_status/256 == 3) && piped ) {not_enough = True;} */
-     }
-  else {  /* child process */
+  } else {  /* child process */
      close(pipe_descr[0]);
      int exit_code = 0;
  
@@ -339,7 +336,6 @@ static void record_active_win (Window win)
     file_with_old_win = fopen(filename, "w");
     fprintf(file_with_old_win,"%x\n",(int)win);
     fclose(file_with_old_win);
-    g_free(filename); filename = NULL ;
 }
 
 static void do_what_user_said ( Display* disp1, char* next_command ) 
@@ -546,7 +542,7 @@ static void our_user_interface(
                             int loc_x, int loc_y, int timeout_sec) {
 
     gtk_init(NULL, NULL);
-    g_object_set (gtk_settings_get_default (), "gtk-error-bell", False, NULL);
+    g_object_set (gtk_settings_get_default (), "gtk-error-bell", True, NULL);
     GtkCssProvider *cssProvider  = gtk_css_provider_new();
     gtk_css_provider_load_from_path(cssProvider,   g_strconcat(home, "/.wmjump/",CSSFILE,NULL), NULL);
 
@@ -674,6 +670,7 @@ static void our_user_interface(
             p_verb("wmjump:  lost focus => exiting  (to persist on lost focus start with -p option) \n"); 
         }
         send_command_to_do_nothing();
+        gtk_widget_destroy(mainwin);
         gtk_main_quit();     }
     /* This is borrowed from 
        http://stackoverflow.com/questions/1925568/how-to-give-keyboard-focus-to-a-pop-up-gtk-window   :
@@ -745,25 +742,34 @@ static void our_user_interface(
         num=-1;
         int ascii_code = event->keyval;
         if (ascii_code == 32) {
+            gtk_widget_destroy(mainwin);
             gtk_main_quit();
             num=1000;
             send_command_to_go_back();
+        } else {
+            for (j=0; j < 9; j++) {
+                if (ascii_code == (49+j) ) {
+                    gtk_widget_destroy(mainwin);
+                    gtk_main_quit();
+                    send_command_to_switch_desktop(j);
+                    num=j; j=100;
+                }
+            }
+            for (j=0; j < number_of_buttons; j++) {
+                if (ascii_code == (97+j) ) {
+                    gtk_widget_destroy(mainwin);
+                    gtk_main_quit();
+                    send_command_to_activate_window(j);
+                    if (double_clutch) { nanosleep(&wait_time_long,NULL); }
+                    num=j; j=number_of_buttons;
+                }
+            }
         }
-        else {
-        for (j=0; j < 9; j++) {
-            if (ascii_code == (49+j) ) {
-                gtk_main_quit();
-                send_command_to_switch_desktop(j);
-                num=j; j=100; }}
-        for (j=0; j < number_of_buttons; j++) { 
-            if (ascii_code == (97+j) ) { 
-                gtk_main_quit();
-                send_command_to_activate_window(j);
-                if (double_clutch) { nanosleep(&wait_time_long,NULL); }
-                num=j; j=number_of_buttons;
-                }}
-             }
-        if (num == -1) { send_command_to_do_nothing(); gtk_main_quit();}
+        if (num == -1) {
+            send_command_to_do_nothing();
+            gtk_widget_destroy(mainwin);
+            gtk_main_quit();
+        }
     }   
  
     
