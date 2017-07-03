@@ -10,6 +10,8 @@ Pressing the space bar brings up the previous window. Pressing 1-9 "teleports" t
 
 ![Screenshot](screenshot.png "Screenshot")
 
+(with some artwork from [colourlovers.com](http://www.colourlovers.com/lover/albenaj))
+
 Building
 ========
 
