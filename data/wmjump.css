@@ -25,6 +25,7 @@
 .top_message_area {
   background: transparent;
   font-family: DejaVu Sans;
+  color: white;
   font-size: 24pt;
 }
 .top_message_area text {
