@@ -324,28 +324,28 @@ void window_set_title (Display *disp, Window win, /* {{{ */
         /* set name */
         if (title_local) {
             XChangeProperty(disp, win, XA_WM_NAME, XA_STRING, 8, PropModeReplace,
-                    title_local, strlen(title_local));
+                    (unsigned char *)title_local, strlen(title_local));
         }
         else {
             XDeleteProperty(disp, win, XA_WM_NAME);
         }
         XChangeProperty(disp, win, XInternAtom(disp, "_NET_WM_NAME", False), 
                 XInternAtom(disp, "UTF8_STRING", False), 8, PropModeReplace,
-                title_utf8, strlen(title_utf8));
+                (unsigned char *)title_utf8, strlen(title_utf8));
     }
 
     if (mode == 'T' || mode == 'I') {
         /* set icon name */
         if (title_local) {
             XChangeProperty(disp, win, XA_WM_ICON_NAME, XA_STRING, 8, PropModeReplace,
-                    title_local, strlen(title_local));
+                    (unsigned char *)title_local, strlen(title_local));
         }
         else {
             XDeleteProperty(disp, win, XA_WM_ICON_NAME);
         }
         XChangeProperty(disp, win, XInternAtom(disp, "_NET_WM_ICON_NAME", False), 
                 XInternAtom(disp, "UTF8_STRING", False), 8, PropModeReplace,
-                title_utf8, strlen(title_utf8));
+                (unsigned char *)title_utf8, strlen(title_utf8));
     }
     
     g_free(title_utf8);
@@ -490,7 +490,7 @@ gboolean wm_supports (Display *disp, const gchar *prop) {/*{{{*/
     Atom xa_prop = XInternAtom(disp, prop, False);
     Atom *list;
     unsigned long size;
-    int i;
+    unsigned int i;
 
     if (! (list = (Atom *)get_property(disp, DefaultRootWindow(disp),
             XA_ATOM, "_NET_SUPPORTED", &size))) {
@@ -615,7 +615,7 @@ int action_window_str (Display *disp, char mode) {/*{{{*/
     Window activate = 0;
     Window *client_list;
     unsigned long client_list_size;
-    int i;
+    unsigned int i;
     
     if (strcmp(SELECT_WINDOW_MAGIC, options.param_window) == 0) {
         activate = Select_Window(disp);
@@ -711,8 +711,8 @@ int list_desktops (Display *disp) {/*{{{*/
     unsigned long desktop_workarea_size = 0;
     gchar **desktop_workarea_str = NULL;
     gchar *list = NULL;
-    int i;
-    int id;
+    unsigned int i;
+    unsigned int id;
     Window root = DefaultRootWindow(disp);
     int ret = EXIT_FAILURE;
     gchar **names = NULL;
@@ -927,8 +927,8 @@ cleanup:
 }/*}}}*/
 
 int longest_str (gchar **strv) {/*{{{*/
-    int max = 0;
-    int i = 0;
+    unsigned int max = 0;
+    unsigned int i = 0;
     
     while (strv && strv[i]) {
         if (strlen(strv[i]) > max) {
@@ -960,7 +960,7 @@ Window *get_client_list (Display *disp, unsigned long *size) {/*{{{*/
 int list_windows (Display *disp) {/*{{{*/
     Window *client_list;
     unsigned long client_list_size;
-    int i;
+    unsigned int i;
     int max_client_machine_len = 0;
     
     if ((client_list = get_client_list(disp, &client_list_size)) == NULL) {
