@@ -108,8 +108,8 @@ Window Select_Window(Display *dpy);
 Window get_active_window(Display *dpy);
 unsigned long get_timestamp (Display* dsp);
 /*}}}*/
-   
-struct {
+
+struct optstruct {
     int verbose;
     int force_utf8;
     int show_class;
@@ -121,11 +121,12 @@ struct {
     int wa_desktop_titles_invalid_utf8;
     char *param_window;
     char *param;
-} options;
+}; 
+extern struct optstruct options;
 
-gboolean envir_utf8;
+extern gboolean envir_utf8;
 
-struct timespec wait_time_short;
-struct timespec wait_time_middle;
-struct timespec wait_time_long;
-gboolean verbose;
+extern struct timespec wait_time_short;
+extern struct timespec wait_time_middle;
+extern struct timespec wait_time_long;
+extern gboolean verbose;

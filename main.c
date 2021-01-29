@@ -53,6 +53,12 @@ Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define CHECK1 0x2714
 
 
+gboolean verbose;
+struct timespec wait_time_short;
+struct timespec wait_time_middle;
+struct timespec wait_time_long;
+
+
 static void do_what_user_said ( Display* dsp, char* next_command );
 
 static void get_list_from_wm(   Display *dsp, 
@@ -100,7 +106,6 @@ static gboolean move_window;
 static const gchar* lttrs = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
 static gchar** lttr;
 static gchar* home;
-
 
 
 

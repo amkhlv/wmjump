@@ -55,6 +55,10 @@ Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define p_verbose(...) if (options.verbose) { \
     fprintf(stderr, __VA_ARGS__); \
   }
+
+gboolean envir_utf8;
+struct optstruct options;
+
 unsigned long get_timestamp (Display* disp) {
     unsigned long * tstump; 
     if ( (tstump = (unsigned long *)get_property(disp, DefaultRootWindow(disp),
